@@ -67,11 +67,7 @@ namespace NoteApp_Production
                     options.ValueLengthLimit = int.MaxValue;
                     options.MultipartHeadersLengthLimit = int.MaxValue;
                 });
-                services.AddHttpsRedirection(options =>
-                {
-                    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                    options.HttpsPort = 5001;
-                });
+ 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
     options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
