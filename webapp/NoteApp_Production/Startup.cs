@@ -8,6 +8,7 @@ using Amazon.S3;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +67,11 @@ namespace NoteApp_Production
                     options.ValueLengthLimit = int.MaxValue;
                     options.MultipartHeadersLengthLimit = int.MaxValue;
                 });
+                services.AddHttpsRedirection(options =>
+                {
+                    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                    options.HttpsPort = 5001;
+                });
             services.Configure<ForwardedHeadersOptions>(options =>
             {
     options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
@@ -97,14 +103,14 @@ namespace NoteApp_Production
             app.UseExceptionHandler("/Error");
             app.UseHsts();
             }
-              app.UseHttpsRedirection();          
-            loggerFactory.AddFile("logs/csye6225.log").AddConsole().AddDebug();
+                        
+            loggerFactory.AddFile("logs/csye6225.log");
             
             
             UpdateDatabase(app);
              app.UseAuthentication();
        
-            
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
