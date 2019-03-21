@@ -37,11 +37,13 @@ namespace trial.Controllers
     {
        // public static Dictionary<String,User> userDetails = new Dictionary<String, User>();
         // GET api/values
-    readonly ILogger<ValuesController> _log;
+        private readonly ILogger<ValuesController> _log;
     
   
         private static IAmazonS3 s3Client;
+      
 
+        public NStatsD.Client  nc;
         private static String[] arguments = Environment.GetCommandLineArgs();
 
         private string bucketName = arguments[1];
@@ -52,6 +54,7 @@ namespace trial.Controllers
         static int rand=  1;
         private CLOUD_CSYEContext _context;
          private static readonly RegionEndpoint bucketRegion = RegionEndpoint.USEast1;
+
          private readonly AWSCredentials credentials;
          
          
@@ -70,7 +73,7 @@ namespace trial.Controllers
              _log = log;
             _context = context;
             s3Client = new AmazonS3Client(bucketRegion);
-            
+           
             statsDConfig = new  StatsDConfiguration{ Host = "localhost", Port = 8125 };
             statsDPublisher = new StatsDPublisher(statsDConfig);
             
@@ -83,7 +86,8 @@ namespace trial.Controllers
         public ActionResult Get()
         {   try{
           //   Console.WriteLine((EnvironmentVariablesAWSCredentials.ENVIRONMENT_VARIABLE_SECRETKEY));
-           _log.LogInformation("Hello, world!");
+           _log.LogInformation("Listing all items");
+
             statsDPublisher.Increment("GET");
             return StatusCode(200, new{result =DateTime.Now});
            
@@ -116,6 +120,8 @@ namespace trial.Controllers
             if(us == null){
                 if(ModelState.IsValid){
                 _log.LogInformation("USER is inserted");
+                Console.WriteLine("User is registered");
+                
                 statsDPublisher.Increment("_USER_API");
                 if (string.IsNullOrWhiteSpace(u.Email))
                { var baDRequest = "Email cant be blank";
