@@ -97,7 +97,10 @@ namespace NoteApp_Production
             app.UseExceptionHandler("/Error");
             app.UseHsts();
             }
-            loggerFactory.AddFile("logs/csye6225.log");
+                        
+            loggerFactory.AddFile("logs/csye6225.log").AddConsole().AddDebug();
+            
+            
             UpdateDatabase(app);
              app.UseAuthentication();
        

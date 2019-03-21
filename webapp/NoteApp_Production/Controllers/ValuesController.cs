@@ -86,7 +86,11 @@ namespace trial.Controllers
         public ActionResult Get()
         {   try{
           //   Console.WriteLine((EnvironmentVariablesAWSCredentials.ENVIRONMENT_VARIABLE_SECRETKEY));
-           _log.LogInformation("Listing all items");
+            using (_log.BeginScope("Message {HoleValue}", DateTime.Now))
+            {
+                _log.LogInformation( "Listing all items");
+                
+}
 
             statsDPublisher.Increment("GET");
             return StatusCode(200, new{result =DateTime.Now});
