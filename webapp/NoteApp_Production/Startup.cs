@@ -97,14 +97,14 @@ namespace NoteApp_Production
             app.UseExceptionHandler("/Error");
             app.UseHsts();
             }
-                        
+              app.UseHttpsRedirection();          
             loggerFactory.AddFile("logs/csye6225.log").AddConsole().AddDebug();
             
             
             UpdateDatabase(app);
              app.UseAuthentication();
        
-            app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
