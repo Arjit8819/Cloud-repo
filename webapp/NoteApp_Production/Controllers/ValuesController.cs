@@ -217,7 +217,7 @@ namespace trial.Controllers
     }
 
         [HttpGet]
-        [Route("/note")]
+        [Route("/note-test")]
         [Authorize]
        public ActionResult getNote(){
             IEnumerable<NOTES> notes = _context.notes.AsEnumerable();
