@@ -147,7 +147,7 @@ namespace trial.Controllers
             }
             }
         [HttpPost("UploadFiles")]
-        [Route("/note")]
+        [Route("/notearjit")]
         [Authorize]
         [Consumes("multipart/form-data")]
         public ActionResult createNotes(NOTES n, IFormFile file){
@@ -217,7 +217,7 @@ namespace trial.Controllers
     }
 
         [HttpGet]
-        [Route("/note-test")]
+        [Route("/note")]
         [Authorize]
        public ActionResult getNote(){
             IEnumerable<NOTES> notes = _context.notes.AsEnumerable();
@@ -422,6 +422,7 @@ namespace trial.Controllers
             string username = getUsername();
         // Console.WriteLine(arguments[1]);
                 Console.WriteLine("Upload 1 completed");
+                _log.LogInformation("Function above IF");
             if(file.Length > 0){
 
             }
