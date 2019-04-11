@@ -336,11 +336,11 @@ namespace trial.Controllers
                   var ID = note.noteID;
                 //IEnumerable<Attachments> a = _context.attachments.AsEnumerable();
                   var created = note.created_on;
-                  _context.notes.Remove(note);
+                 
                   _context.SaveChanges();
 
             var notes = new NOTES{noteID = ID ,created_on= created, content= n.content, title= n.title, last_updated_on= DateTime.Now, EMAIL= username};
-            _context.Add(notes);
+            _context.Update(notes);
             _context.SaveChanges();
          return  StatusCode(204, new{Result= "Note Updated Successfully" });
         }
