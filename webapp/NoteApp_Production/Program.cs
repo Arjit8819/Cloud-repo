@@ -26,7 +26,7 @@ namespace NoteApp_Production
                 {
                     options.Limits.MaxConcurrentConnections = 100;
                     options.Limits.MaxConcurrentUpgradedConnections = 100;
-                    options.Limits.MaxRequestBodySize = 10 * 1024;
+                    options.Limits.MaxRequestBodySize = null;
                     options.Limits.MinRequestBodyDataRate =
                         new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                     options.Limits.MinResponseDataRate =
