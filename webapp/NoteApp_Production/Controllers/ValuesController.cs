@@ -118,7 +118,7 @@ namespace trial.Controllers
         }
 
         [HttpPost]
-        [Route("/user/register-arjit")]
+        [Route("/user/register-arji")]
         public ActionResult signup([FromBody] Users u)
         {
             Users us =  _context.Users.Find(u.Email);
