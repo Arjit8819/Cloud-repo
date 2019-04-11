@@ -35,7 +35,7 @@ namespace NoteApp_Production
                      
                   
                 })
-                .ConfigureLogging((hostingContext, logging) =>
+                .ConfigureLogging((hos	tingContext, logging) =>
                 {
                     logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     logging.AddConsole();
