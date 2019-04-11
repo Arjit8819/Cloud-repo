@@ -147,7 +147,7 @@ namespace trial.Controllers
             }
             }
         [HttpPost("UploadFiles")]
-        [Route("/note")]
+        [Route("/noteArjit")]
         [Authorize]
         [Consumes("multipart/form-data")]
         public ActionResult createNotes(NOTES n, IFormFile file){
@@ -212,7 +212,7 @@ namespace trial.Controllers
             }  
     }
         [HttpGet]
-        [Route("/note")]
+        [Route("/noteArjit")]
         [Authorize]
        public ActionResult getNote(){
             IEnumerable<NOTES> notes = _context.notes.AsEnumerable();
