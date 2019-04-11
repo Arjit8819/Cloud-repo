@@ -418,7 +418,6 @@ namespace trial.Controllers
             string username = getUsername();
         // Console.WriteLine(arguments[1]);
                 Console.WriteLine("Upload 1 completed");
-                _log.LogInformation("Function above IF");
             if(file.Length > 0){
 
             }
