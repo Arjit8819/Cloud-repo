@@ -337,7 +337,7 @@ namespace trial.Controllers
                 //IEnumerable<Attachments> a = _context.attachments.AsEnumerable();
                   var created = note.created_on;
                  
-                  _context.SaveChanges();
+                 // _context.SaveChanges();
 
             var notes = new NOTES{noteID = ID ,created_on= created, content= n.content, title= n.title, last_updated_on= DateTime.Now, EMAIL= username};
             _context.Update(notes);
