@@ -29,9 +29,6 @@ using Amazon.S3.Model;
 using trial3;
 using StatsN;
 using JustEat.StatsD;
-using Amazon.SimpleNotificationService;
-
-using Amazon.SimpleNotificationService.Model;
 
 namespace trial.Controllers
 {
@@ -40,13 +37,11 @@ namespace trial.Controllers
     {
        // public static Dictionary<String,User> userDetails = new Dictionary<String, User>();
         // GET api/values
-        private readonly ILogger<ValuesController> _log;
+    readonly ILogger _log;
     
   
         private static IAmazonS3 s3Client;
-      
 
-        public NStatsD.Client  nc;
         private static String[] arguments = Environment.GetCommandLineArgs();
 
         private string bucketName = arguments[1];
@@ -57,7 +52,6 @@ namespace trial.Controllers
         static int rand=  1;
         private CLOUD_CSYEContext _context;
          private static readonly RegionEndpoint bucketRegion = RegionEndpoint.USEast1;
-
          private readonly AWSCredentials credentials;
          
          
@@ -76,7 +70,7 @@ namespace trial.Controllers
              _log = log;
             _context = context;
             s3Client = new AmazonS3Client(bucketRegion);
-           
+            
             statsDConfig = new  StatsDConfiguration{ Host = "localhost", Port = 8125 };
             statsDPublisher = new StatsDPublisher(statsDConfig);
             
@@ -84,15 +78,13 @@ namespace trial.Controllers
         }
         
         [HttpGet]
-      [Authorize]
+      //  [Authorize]
         [Route("/")]
         public ActionResult Get()
         {   try{
           //   Console.WriteLine((EnvironmentVariablesAWSCredentials.ENVIRONMENT_VARIABLE_SECRETKEY));
-  
-                _log.LogInformation( "Listing all items");
-                
-
+           _log.LogInformation("HI");
+           Console.WriteLine("Hello, world!");
             statsDPublisher.Increment("GET");
             return StatusCode(200, new{result =DateTime.Now});
            
@@ -118,15 +110,15 @@ namespace trial.Controllers
         }
 
         [HttpPost]
-        [Route("/user/registerArjit")]
+        [Route("/user/register")]
         public ActionResult signup([FromBody] Users u)
         {
             Users us =  _context.Users.Find(u.Email);
             if(us == null){
                 if(ModelState.IsValid){
-                _log.LogInformation("USER is inserted");
-                Console.WriteLine("User is registered");
-                
+                 
+                 
+                _log.LogInformation("User Created");
                 statsDPublisher.Increment("_USER_API");
                 if (string.IsNullOrWhiteSpace(u.Email))
                { var baDRequest = "Email cant be blank";
@@ -146,14 +138,14 @@ namespace trial.Controllers
                 return StatusCode(409, new{ result = conflict});
             }
             }
-        [HttpPost]
+        [HttpPost("UploadFiles")]
         [Route("/note")]
         [Authorize]
         [Consumes("multipart/form-data")]
         public ActionResult createNotes(NOTES n, IFormFile file){
                if(ModelState.IsValid){
-                   _log.LogInformation("NOTE is inserted");
-                   statsDPublisher.Increment("_NOTE_API");
+                    
+
             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
             var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
@@ -161,16 +153,21 @@ namespace trial.Controllers
             var fileTransferUtility =
                 new TransferUtility(s3Client);
    
-            string fileName = (rand.ToString() +file.FileName);
+            string fileName = ( rand.ToString() +file.FileName );
             rand++;
-            var uploads = Path.Combine(Directory.GetCurrentDirectory(), file.FileName);
+           // var uniqueFileName = GetUniqueFileName(file.FileName);
+            var uploads = Path.Combine(Directory.GetCurrentDirectory(), fileName );
 
             var filePath = Path.Combine(uploads);
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-           { 
-               file.CopyToAsync(stream);
-               fileTransferUtility.UploadAsync(stream, bucketName, fileName);
-           }
+            if (file.Length > 0)
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+
+
+                    file.CopyToAsync(stream);
+            }
+
+            fileTransferUtility.UploadAsync(filePath, bucketName, fileName);
             GetPreSignedUrlRequest request = new GetPreSignedUrlRequest();
             request.BucketName = bucketName;
             request.Key = fileName;
@@ -203,16 +200,24 @@ namespace trial.Controllers
                     }
                 }
             string Json = JsonConvert.SerializeObject(notes, Formatting.Indented);
-            return StatusCode(201,new{noteId= notes.noteID, content  = n.content, created_on = DateTime.Now,title = n.title,last_updated_on= DateTime.Now,attachments = att});
-                    }
+   
+          // var a1 = new mAttachments{AID = Attachment.AID ,url=Attachment.url};
+          //  string username = us.getUsername();
+
+          _log.LogInformation("NOTE is inserted");
+          statsDPublisher.Increment("_NOTE_API");
+          return StatusCode(201,new{noteId= notes.noteID, content  = n.content, created_on = DateTime.Now,title = n.title,last_updated_on= DateTime.Now,attachments = att});
+            
+               }
             else{
-                var conflict = "Bad Request";
+                var conflict = "Bad Request Sorry";
                 return StatusCode(409, new{ result = conflict});
 
             }  
     }
+
         [HttpGet]
-        [Route("/noteArjit")]
+        [Route("/note")]
         [Authorize]
        public ActionResult getNote(){
             IEnumerable<NOTES> notes = _context.notes.AsEnumerable();
@@ -255,7 +260,7 @@ namespace trial.Controllers
             return StatusCode(200, Json);
             }
             else{
-                return StatusCode(200, new{result = "You Don't have any notes!!! Sorry"});
+                return StatusCode(200, new{result = "You Don't have any notes"});
             }
        }
         [HttpGet]
@@ -296,7 +301,7 @@ namespace trial.Controllers
         public  ActionResult GetNoteAttachmentbyId(string id){
 
             
- 
+            statsDPublisher.Increment("NOTE_ID_ATTACHMENTS");
                 string username = getUsername();
                 NOTES notes =  _context.notes.Find(id);
                 IEnumerable<Attachments> at = _context.attachments.AsEnumerable();
@@ -326,7 +331,7 @@ namespace trial.Controllers
         [Route("/note/{id}")]
         [Authorize]
         public ActionResult putnote(string id,[FromBody] NOTES n){
-
+            statsDPublisher.Increment("PUT_NOTE_ID");
                   string username = getUsername();
                   NOTES note = _context.notes.Find(id);
                   if(note.EMAIL == username){
@@ -353,7 +358,7 @@ namespace trial.Controllers
             
             var fileTransferUtility =
                 new TransferUtility(s3Client);
-
+            statsDPublisher.Increment("NOTE_DELETE_BY_ID");
                     string username = getUsername();
 
                     NOTES note = _context.notes.Find(id);
@@ -394,13 +399,13 @@ namespace trial.Controllers
         public  ActionResult AttachImage(string id, IFormFile file){
                       var fileTransferUtility =
                     new TransferUtility(s3Client);
-         
+                      statsDPublisher.Increment("POST_ID_NOTE_ATTACHMENTS");
     
             string fileName = (rand.ToString() + file.FileName );
             rand++;
            // var uniqueFileName = GetUniqueFileName(file.FileName);
             var filePath = Path.Combine(file.FileName);
-              var uploads = Path.Combine(Directory.GetCurrentDirectory(),fileName );
+              var uploads = Path.Combine(Directory.GetCurrentDirectory(),file.FileName);
                      using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                    // fileTransferUtility.UploadAsync(stream,bucketName, keyName);
@@ -424,7 +429,7 @@ namespace trial.Controllers
                   NOTES note = _context.notes.Find(id);
 
                   var Attachment = new Attachments{url=url,FileName=fileName, length=file.Length, noteID = note.noteID};
-                  _context.Add(Attachment);
+                  _context.attachments.Add(Attachment);
                   _context.SaveChanges(); 
 
              IEnumerable<Attachments> a1 = _context.attachments.AsEnumerable();
@@ -514,7 +519,7 @@ namespace trial.Controllers
             var fileTransferUtility =
                 new TransferUtility(s3Client);
                 string username = getUsername();
-
+                    
                     NOTES note = _context.notes.Find(id);
 
                     Attachments a = _context.attachments.Find(atid);
@@ -530,12 +535,12 @@ namespace trial.Controllers
                     }
                    
                     else{
-                        return StatusCode(401, new{result = "You are Not Authorized"});
+                        return StatusCode(401, new{result = "Not Authorized"});
                     }
 
         }
 
- [HttpPost]
+         [HttpPost]
         [Route("/reset")]
         public async void passwordreset([FromBody] Users u){
            Users a =  _context.Users.Find(u.Email);
@@ -566,6 +571,6 @@ namespace trial.Controllers
                   
                 } 
             }  
-        }
+}
  }
 }
