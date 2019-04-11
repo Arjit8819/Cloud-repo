@@ -146,7 +146,7 @@ namespace trial.Controllers
                 return StatusCode(409, new{ result = conflict});
             }
             }
-        
+        [HttpPost]
         [Route("/noteArji")]
         [Authorize]
         [Consumes("multipart/form-data")]
