@@ -146,7 +146,7 @@ namespace trial.Controllers
                 return StatusCode(409, new{ result = conflict});
             }
             }
-        [HttpPost("UploadFiles")]
+        
         [Route("/noteArjit")]
         [Authorize]
         [Consumes("multipart/form-data")]
